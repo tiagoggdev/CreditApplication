@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+    <PackageReference Include="MediatR" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CreditApplication.Domain\CreditApplication.Domain.csproj" />
+    <ProjectReference Include="..\CreditApplication.Infrastructure\CreditApplication.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
