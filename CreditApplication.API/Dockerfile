@@ -1,16 +1,25 @@
-ARG DOTNET_VERSION=9.0-alpine
-ARG BUILD_CONFIGURATION=Release
-
-# Etapa de build
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build
+# Etapa 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY ["CreditApplication.Domain/", "CreditApplication.Domain/"]
-COPY ["CreditApplication.Application/", "CreditApplication.Application/"]
-COPY ["CreditApplication/CreditApplication.Infrastructure", "CreditApplication.Infrastructure/"]
+# Copiar archivos de la solución
+COPY ["../CreditApplication.API/CreditApplication.API.csproj", "./"]
+COPY ["CreditApplication.Application/CreditApplication.Application.csproj", "CreditApplication.Application/"]
+COPY ["CreditApplication.Domain/CreditApplication.Domain.csproj", "CreditApplication.Domain/"]
+COPY ["CreditApplication.Infrastructure/CreditApplication.Infrastructure.csproj", "CreditApplication.Infrastructure/"]
 
-WORKDIR /src/CreditApplication.API
-RUN dotnet restore "./CreditApplication.API.csproj"
-RUN dotnet build "./CreditApplication.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# Restaurar dependencias
+RUN dotnet restore "CreditApplication.API/CreditApplication.API.csproj"
+
+# Copiar el resto de los archivos
+COPY . .
+
+# Compilar en modo Release
+WORKDIR "/src/CreditApplication.API"
 RUN dotnet publish -c Release -o /app/publish
 
+# Etapa 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "CreditApplication.API.dll"]
