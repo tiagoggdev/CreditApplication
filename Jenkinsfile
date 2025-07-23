@@ -12,6 +12,17 @@ pipeline {
         checkout scm
       }
     }
+    stage('Restore & Build') {
+      steps {
+        sh 'dotnet restore CreditApplication.sln'
+        sh 'dotnet build CreditApplication.sln -c Release'
+      }
+    }
+    stage('Publish') {
+      steps {
+        sh 'dotnet publish CreditApplication.API/CreditApplication.API.csproj -c Release -o out'
+      }
+    }
     stage('Docker Build & Push') {
       steps {
         sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
